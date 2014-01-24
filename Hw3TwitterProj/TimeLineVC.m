@@ -13,6 +13,8 @@
 // #import "Tweet.h"
 // #import "User.h"
 
+#import "TweetCell.h"
+
 @interface TimeLineVC ()
 
 @property (nonatomic, strong) NSMutableArray *tweets;
@@ -38,8 +40,14 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    
+    // register the nib for the custom tablecell
+    UINib *customNib = [UINib nibWithNibName:@"TweetCell" bundle:nil];
+    [self.tableView registerNib:customNib forCellReuseIdentifier:@"TweetCell"];
+    
 
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Sign Out" style:UIBarButtonItemStylePlain target:self action:@selector(onSignOutButton)];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Sign Out" style:UIBarButtonItemStylePlain target:self action:@selector(onSignOutButton)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Write" style:UIBarButtonItemStylePlain target:self action:@selector(onComposeButton)];
 
     // Uncomment the following line to preserve selection between presentations.
     // self.clearsSelectionOnViewWillAppear = NO;
@@ -68,15 +76,39 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-//    static NSString *CellIdentifier = @"Cell";
+    static NSString *CellIdentifier = @"TweetCell";
+    TweetCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+    
+    if (cell == nil) {
+        NSLog(@"Warning. this should never be nil. it should auto-reallocate:");
+        cell = [[TweetCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
+    }
+
 //    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
-    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+
+//    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
     
     Tweet *tweet = self.tweets[indexPath.row];
-    cell.textLabel.text = tweet.text;
+    // cell.textLabel.text = tweet.text;
+    cell.tweetLabel.text = tweet.text;
+    cell.tweetTime.text = tweet.created_at;
+    cell.tweetAuthor.text = tweet.username;
+    
+    NSLog(@"URL should be %@",tweet.pictureUrl);
+    NSData *imageData = [[NSData alloc] initWithContentsOfURL:tweet.pictureUrl];
+    cell.tweetImage.image = [UIImage imageWithData:imageData];
+    
+    
+    NSLog(@"Set cell %d to %@, generated at %@",indexPath.row,tweet.text, tweet.created_at);
     
     return cell;
 }
+
+- (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
+    CGFloat rowHeight = 130;
+    return rowHeight;
+}
+
 
 /*
 // Override to support conditional editing of the table view.
@@ -136,15 +168,24 @@
 
  */
 
+-(void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    NSLog(@"Preparing to move");
+}
+
 #pragma mark - Private methods
 
 - (void)onSignOutButton {
     [User setCurrentUser:nil];
 }
 
+- (void)onComposeButton {
+
+}
+
 - (void)reload {
     [[TwitterClient instance] homeTimelineWithCount:20 sinceId:0 maxId:0 success:^(AFHTTPRequestOperation *operation, id response) {
-        NSLog(@"%@", response);
+//        NSLog(@"%@", response);
+        NSLog(@"grabbed from twitter");
         self.tweets = [Tweet tweetsWithArray:response];
         [self.tableView reloadData];
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {

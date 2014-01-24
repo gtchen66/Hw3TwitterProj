@@ -14,6 +14,19 @@
     return [self.data valueOrNilForKeyPath:@"text"];
 }
 
+- (NSString *)created_at {
+    return [self.data valueOrNilForKeyPath:@"created_at"];
+}
+
+- (NSString *)username {
+    return [[self.data objectForKey:@"user"] valueOrNilForKeyPath:@"name"];
+}
+
+- (NSURL *)pictureUrl {
+    return [NSURL URLWithString:[[self.data objectForKey:@"user"] valueOrNilForKeyPath:@"profile_image_url"]];
+}
+
+
 + (NSMutableArray *)tweetsWithArray:(NSArray *)array {
     NSMutableArray *tweets = [[NSMutableArray alloc] initWithCapacity:array.count];
     for (NSDictionary *params in array) {

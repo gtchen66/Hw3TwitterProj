@@ -10,4 +10,10 @@
 
 @interface TweetCell : UITableViewCell
 
+@property (weak, nonatomic) IBOutlet UILabel *tweetLabel;
+@property (weak, nonatomic) IBOutlet UILabel *tweetTime;
+@property (weak, nonatomic) IBOutlet UILabel *tweetAuthor;
+@property (weak, nonatomic) IBOutlet UIImageView *tweetImage;
+
+
 @end

@@ -11,6 +11,9 @@
 @interface Tweet : RestObject
 
 @property (nonatomic, strong, readonly) NSString *text;
+@property (nonatomic, strong, readonly) NSString *created_at;
+@property (nonatomic, strong, readonly) NSString *username;
+@property (nonatomic, strong, readonly) NSURL *pictureUrl;
 
 + (NSMutableArray *) tweetsWithArray:(NSArray *)array;
 
