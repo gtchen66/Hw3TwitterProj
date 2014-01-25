@@ -8,19 +8,22 @@
 
 #import "TimeLineVC.h"
 
-// why do I need these but the reference implementation doesn't.  Ah, the TwitterCommon.h file
-// #import "TwitterClient.h"
-// #import "Tweet.h"
-// #import "User.h"
-
 #import "TweetCell.h"
+#import "DetailedTweetVC.h"
+#import "ComposeVC.h"
+
+#import <objc/runtime.h>
 
 @interface TimeLineVC ()
 
 @property (nonatomic, strong) NSMutableArray *tweets;
+@property (nonatomic, strong) DetailedTweetVC *detailedTweetTC;
 
 - (void)onSignOutButton;
 - (void)reload;
+
+// - (IBAction)onTap:(id)sender;
+
 
 @end
 
@@ -74,6 +77,14 @@
     return self.tweets.count;
 }
 
+// row was selected
+- (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSLog(@"selected row: %d", indexPath.row);
+    [self.navigationController pushViewController:[[DetailedTweetVC alloc] init] animated:YES];
+    
+}
+
+
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     static NSString *CellIdentifier = @"TweetCell";
@@ -91,7 +102,6 @@
     Tweet *tweet = self.tweets[indexPath.row];
     // cell.textLabel.text = tweet.text;
     cell.tweetLabel.text = tweet.text;
-    cell.tweetTime.text = tweet.created_at;
     cell.tweetAuthor.text = tweet.username;
     
     NSLog(@"URL should be %@",tweet.pictureUrl);
@@ -101,12 +111,70 @@
     
     NSLog(@"Set cell %d to %@, generated at %@",indexPath.row,tweet.text, tweet.created_at);
     
+    //try to convert time to NSDate.
+    NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
+    [dateFormat setDateFormat:@"EEE MMM dd HH:mm:ss +zzzz yyyy"];
+    NSDate *mydate = [dateFormat dateFromString:tweet.created_at];
+
+    NSDate *now = [[NSDate alloc] initWithTimeIntervalSinceNow:0];
+    NSTimeInterval deltaTime = [now timeIntervalSinceDate:mydate];
+    NSString *deltaTimeString;
+    
+    if (deltaTime < 60) {
+        deltaTimeString = [NSString stringWithFormat:@"%ds",(int) deltaTime];
+    } else if (deltaTime < 3600) {
+        deltaTimeString = [NSString stringWithFormat:@"%dm",(int) (deltaTime/60)];
+    } else if (deltaTime < 3600*48) {
+        deltaTimeString = [NSString stringWithFormat:@"%dh",(int) (deltaTime/3600)];
+    } else {
+        deltaTimeString = [NSString stringWithFormat:@"%dd",(int) (deltaTime/3600/24)];
+    }
+    
+    NSLog(@"date is <%@> with delta %f is %@", mydate, deltaTime, deltaTimeString);
+    
+    cell.tweetTime.text = deltaTimeString;
+    
+    
+    
     return cell;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
     CGFloat rowHeight = 130;
     return rowHeight;
+    
+    
+    /*
+     
+
+     tweet *tweet = self.tweet[indexpath.row]
+     
+// this is expensive        
+//     uitableviewcell *tvc = [tableview cellforrowatindexpath:indexpath];
+     
+//     cgrect frame = [tweet.text boundingrectwithsize:cgsizemake[200.0f, cgfloat_max) options:
+     CGRect frame = [tweet.text boundingRectWithSize:CGSizeMake(200.0f, CGFLOAT_MAX) 
+                    options:NSStringDrawingUsesLineFragmentOrigin 
+                    attributes:@{nsstringdrawinguseslinefragmentorigin attributes:@{nsfontattributename:[uifont systenfontofsize:12.0f]} 
+                    context:nikl]
+     
+     float height=frame.size.height
+     float diffheight = ((34.0 + height) - 64.0)
+     diff height = (diffheight > 0? ? diffheight :0;
+     flaot calheight = 64.0 + dffheight;
+     return calheight;
+     
+     
+     NSURLREquest *request = [NSURLRequiest requestWithURL:tweet.profileImageUrl];
+     [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^{NSURLResponse *
+        response, NSData *imageData, NSError *connectionError) {
+            [cell.profileImageView setImage:[UIImage imageWithData:imageData]];
+     }];
+     return cell;
+     
+     
+     
+     */
 }
 
 
@@ -152,7 +220,22 @@
 #pragma mark - Table view delegate
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    NSLog(@"selected row: %ld", (long)indexPath.row);
+
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    
+//    Tweet *tweet = self.tweets[indexPath.row];
+    
+    if (self.detailedTweetTC == nil) {
+        DetailedTweetVC *dvc = [[DetailedTweetVC alloc] init];
+        self.detailedTweetTC = dvc;
+    }
+    self.detailedTweetTC.tweet = self.tweets[indexPath.row];
+    
+    NSLog(@"Set the detailed tweet text to %@",self.detailedTweetTC.tweet.text);
+    
+    [self.navigationController pushViewController:self.detailedTweetTC animated:YES];
+
 }
 
 
@@ -179,12 +262,18 @@
 }
 
 - (void)onComposeButton {
-
+    [self.navigationController pushViewController:[[ComposeVC alloc] init] animated:YES];
+    
 }
+// 426995657967038464
+// 426987812101959680
+// 426963970105163776
+// 426957658604994560
+// 426951755172028416
 
 - (void)reload {
-    [[TwitterClient instance] homeTimelineWithCount:20 sinceId:0 maxId:0 success:^(AFHTTPRequestOperation *operation, id response) {
-//        NSLog(@"%@", response);
+    [[TwitterClient instance] homeTimelineWithCount:5 sinceId:426957658604994560 maxId:0 success:^(AFHTTPRequestOperation *operation, id response) {
+        NSLog(@"%@", response);
         NSLog(@"grabbed from twitter");
         self.tweets = [Tweet tweetsWithArray:response];
         [self.tableView reloadData];

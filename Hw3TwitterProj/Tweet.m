@@ -22,6 +22,10 @@
     return [[self.data objectForKey:@"user"] valueOrNilForKeyPath:@"name"];
 }
 
+- (NSString *)screen_name {
+    return [[self.data objectForKey:@"user"] valueOrNilForKeyPath:@"screen_name"];
+}
+
 - (NSURL *)pictureUrl {
     return [NSURL URLWithString:[[self.data objectForKey:@"user"] valueOrNilForKeyPath:@"profile_image_url"]];
 }

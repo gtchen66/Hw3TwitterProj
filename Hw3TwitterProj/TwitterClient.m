@@ -56,7 +56,7 @@ static NSString * const kAccessTokenKey = @"kAccessTokenKey";
 
 // Status API
 
-- (void)homeTimelineWithCount:(int)count sinceId:(int)sinceId maxId:(int)maxId success:(void (^)(AFHTTPRequestOperation *operation, id response))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
+- (void)homeTimelineWithCount:(int)count sinceId:(long long)sinceId maxId:(long long)maxId success:(void (^)(AFHTTPRequestOperation *operation, id response))success failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure {
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:@{@"count": @(count)}];
     if (sinceId > 0) {
         [params setObject:@(sinceId) forKey:@"since_id"];
@@ -64,7 +64,28 @@ static NSString * const kAccessTokenKey = @"kAccessTokenKey";
     if (maxId > 0) {
         [params setObject:@(maxId) forKey:@"max_id"];
     }
+    
+    NSLog(@"Calling Twitter with the following parameters");
+    NSLog(@"*********************************************");
+    NSLog(@"%@", params);
+    NSLog(@"*********************************************");
+    
     [self getPath:@"1.1/statuses/home_timeline.json" parameters:params success:success failure:failure];
+}
+
+// Post API
+
+- (void)postStatusWithString:(NSString *)tweet success:(void (^)(AFHTTPRequestOperation *, id))success failure:(void (^)(AFHTTPRequestOperation *, NSError *))failure {
+
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:@{@"status": tweet}];
+    NSLog(@"Calling Twitter to tweet:");
+    NSLog(@"*********************************************");
+    NSLog(@"%@", params);
+    NSLog(@"*********************************************");
+
+    
+    [self postPath:@"1.1/statuses/update.json" parameters:params success:success failure:failure];
+    
 }
 
 // Additional method - not declared externally.

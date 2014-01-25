@@ -43,6 +43,11 @@
 		B54D2E601892563400D2FC74 /* SignedOutVC.m in Sources */ = {isa = PBXBuildFile; fileRef = B54D2E5E1892563400D2FC74 /* SignedOutVC.m */; };
 		B54D2E611892563400D2FC74 /* SignedOutVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = B54D2E5F1892563400D2FC74 /* SignedOutVC.xib */; };
 		B54D2E6718925F8D00D2FC74 /* NSDictionary+CPAdditions.m in Sources */ = {isa = PBXBuildFile; fileRef = B54D2E6618925F8D00D2FC74 /* NSDictionary+CPAdditions.m */; };
+		B59F710418938831001D2FB1 /* DetailedTweetVC.m in Sources */ = {isa = PBXBuildFile; fileRef = B59F710218938831001D2FB1 /* DetailedTweetVC.m */; };
+		B59F710518938831001D2FB1 /* DetailedTweetVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = B59F710318938831001D2FB1 /* DetailedTweetVC.xib */; };
+		B59F710B1893A23F001D2FB1 /* ComposeVC.m in Sources */ = {isa = PBXBuildFile; fileRef = B59F71091893A23F001D2FB1 /* ComposeVC.m */; };
+		B59F710C1893A23F001D2FB1 /* ComposeVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = B59F710A1893A23F001D2FB1 /* ComposeVC.xib */; };
+		B59F710E1893ADD1001D2FB1 /* Twitter.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B59F710D1893ADD1001D2FB1 /* Twitter.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -116,6 +121,13 @@
 		B54D2E6218925A3000D2FC74 /* TwitterCommon.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TwitterCommon.h; sourceTree = "<group>"; };
 		B54D2E6518925F8D00D2FC74 /* NSDictionary+CPAdditions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+CPAdditions.h"; sourceTree = "<group>"; };
 		B54D2E6618925F8D00D2FC74 /* NSDictionary+CPAdditions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+CPAdditions.m"; sourceTree = "<group>"; };
+		B59F710118938831001D2FB1 /* DetailedTweetVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DetailedTweetVC.h; sourceTree = "<group>"; };
+		B59F710218938831001D2FB1 /* DetailedTweetVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DetailedTweetVC.m; sourceTree = "<group>"; };
+		B59F710318938831001D2FB1 /* DetailedTweetVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = DetailedTweetVC.xib; sourceTree = "<group>"; };
+		B59F71081893A23F001D2FB1 /* ComposeVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComposeVC.h; sourceTree = "<group>"; };
+		B59F71091893A23F001D2FB1 /* ComposeVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ComposeVC.m; sourceTree = "<group>"; };
+		B59F710A1893A23F001D2FB1 /* ComposeVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ComposeVC.xib; sourceTree = "<group>"; };
+		B59F710D1893ADD1001D2FB1 /* Twitter.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Twitter.framework; path = System/Library/Frameworks/Twitter.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -123,6 +135,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B59F710E1893ADD1001D2FB1 /* Twitter.framework in Frameworks */,
 				B54D2DA018923C3200D2FC74 /* CoreGraphics.framework in Frameworks */,
 				B54D2DA218923C3200D2FC74 /* UIKit.framework in Frameworks */,
 				B54D2D9E18923C3200D2FC74 /* Foundation.framework in Frameworks */,
@@ -164,6 +177,7 @@
 		B54D2D9C18923C3200D2FC74 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				B59F710D1893ADD1001D2FB1 /* Twitter.framework */,
 				B54D2E251892481300D2FC74 /* AFNetworking */,
 				B54D2E1C189247E400D2FC74 /* AFOAuth1Client */,
 				B54D2D9D18923C3200D2FC74 /* Foundation.framework */,
@@ -299,6 +313,12 @@
 				B54D2E5D1892563400D2FC74 /* SignedOutVC.h */,
 				B54D2E5E1892563400D2FC74 /* SignedOutVC.m */,
 				B54D2E5F1892563400D2FC74 /* SignedOutVC.xib */,
+				B59F710118938831001D2FB1 /* DetailedTweetVC.h */,
+				B59F710218938831001D2FB1 /* DetailedTweetVC.m */,
+				B59F710318938831001D2FB1 /* DetailedTweetVC.xib */,
+				B59F71081893A23F001D2FB1 /* ComposeVC.h */,
+				B59F71091893A23F001D2FB1 /* ComposeVC.m */,
+				B59F710A1893A23F001D2FB1 /* ComposeVC.xib */,
 			);
 			name = "View Controllers";
 			sourceTree = "<group>";
@@ -401,6 +421,8 @@
 				B54D2E611892563400D2FC74 /* SignedOutVC.xib in Resources */,
 				B54D2E58189250A300D2FC74 /* TweetCell.xib in Resources */,
 				B54D2E24189247E400D2FC74 /* README.md in Resources */,
+				B59F710518938831001D2FB1 /* DetailedTweetVC.xib in Resources */,
+				B59F710C1893A23F001D2FB1 /* ComposeVC.xib in Resources */,
 				B54D2DB018923C3200D2FC74 /* Images.xcassets in Resources */,
 				B54D2E451892481300D2FC74 /* LICENSE in Resources */,
 			);
@@ -428,6 +450,7 @@
 				B54D2E3D1892481300D2FC74 /* AFHTTPRequestOperation.m in Sources */,
 				B54D2E6718925F8D00D2FC74 /* NSDictionary+CPAdditions.m in Sources */,
 				B54D2E561892508300D2FC74 /* TweetCell.m in Sources */,
+				B59F710B1893A23F001D2FB1 /* ComposeVC.m in Sources */,
 				B54D2E3C1892481300D2FC74 /* AFHTTPClient.m in Sources */,
 				B54D2E431892481300D2FC74 /* AFXMLRequestOperation.m in Sources */,
 				B54D2DD718923CFC00D2FC74 /* TwitterClient.m in Sources */,
@@ -435,6 +458,7 @@
 				B54D2E5C1892514F00D2FC74 /* TimeLineVC.m in Sources */,
 				B54D2E4918924BB200D2FC74 /* User.m in Sources */,
 				B54D2E4F18924D0A00D2FC74 /* RestObject.m in Sources */,
+				B59F710418938831001D2FB1 /* DetailedTweetVC.m in Sources */,
 				B54D2DAA18923C3200D2FC74 /* main.m in Sources */,
 				B54D2E5218924E8200D2FC74 /* Tweet.m in Sources */,
 				B54D2E3F1892481300D2FC74 /* AFJSONRequestOperation.m in Sources */,
@@ -651,6 +675,7 @@
 				B54D2DC818923C3200D2FC74 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		B54D2DC918923C3200D2FC74 /* Build configuration list for PBXNativeTarget "Hw3TwitterProjTests" */ = {
 			isa = XCConfigurationList;
@@ -659,6 +684,7 @@
 				B54D2DCB18923C3200D2FC74 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
