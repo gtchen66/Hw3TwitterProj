@@ -64,8 +64,7 @@ static NSString * const kAccessTokenKey = @"kAccessTokenKey";
     if (maxId > 0) {
         [params setObject:@(maxId) forKey:@"max_id"];
     }
-    
-    NSLog(@"Calling Twitter with the following parameters");
+    NSLog(@"Calling Twitter for timeline:");
     NSLog(@"*********************************************");
     NSLog(@"%@", params);
     NSLog(@"*********************************************");
@@ -83,10 +82,51 @@ static NSString * const kAccessTokenKey = @"kAccessTokenKey";
     NSLog(@"%@", params);
     NSLog(@"*********************************************");
 
+    [self postPath:@"1.1/statuses/update.json" parameters:params success:success failure:failure];
+}
+
+// Favorite API
+
+- (void)postFavoriteTweetWithId:(long long)tweetId success:(void (^)(AFHTTPRequestOperation *, id))success failure:(void (^)(AFHTTPRequestOperation *, NSError *))failure {
+
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:@{@"id": @(tweetId)}];
+
+    NSLog(@"Calling Twitter to favorite:");
+    NSLog(@"*********************************************");
+    NSLog(@"%@", params);
+    NSLog(@"*********************************************");
+    
+    [self postPath:@"1.1/favorites/create.json" parameters:params success:success failure:failure];
+}
+
+// Retweet API
+
+- (void)postRetweetWithId:(long long)tweetId success:(void (^)(AFHTTPRequestOperation *, id))success failure:(void (^)(AFHTTPRequestOperation *, NSError *))failure {
+    
+    NSString *retweetPath = [NSString stringWithFormat:@"1.1//statuses/retweet/%lld.json",tweetId];
+    
+    NSLog(@"Calling Twitter to retweet:");
+    NSLog(@"*********************************************");
+    NSLog(@"%@", retweetPath);
+    NSLog(@"*********************************************");
+    
+    [self postPath:retweetPath parameters:nil success:success failure:failure];
+}
+
+// Reply API
+- (void)postReplyWithString:(NSString *)tweet toTweetId:(long long)toTweetId success:(void (^)(AFHTTPRequestOperation *, id))success failure:(void (^)(AFHTTPRequestOperation *, NSError *))failure {
+    
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:@{@"status": tweet}];
+    [params setObject:@(toTweetId) forKey:@"in_reply_to_status_id"];
+    
+    NSLog(@"Calling Twitter to reply:");
+    NSLog(@"*********************************************");
+    NSLog(@"%@", params);
+    NSLog(@"*********************************************");
     
     [self postPath:@"1.1/statuses/update.json" parameters:params success:success failure:failure];
-    
 }
+
 
 // Additional method - not declared externally.
 

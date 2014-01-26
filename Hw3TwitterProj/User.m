@@ -23,8 +23,12 @@ static User *_currentUser;
         if (userData) {
             NSDictionary *userDictionary = [NSJSONSerialization JSONObjectWithData:userData options:NSJSONReadingMutableContainers error:nil];
             _currentUser = [[User alloc] initWithDictionary:userDictionary];
+            NSLog(@"*** Set the current user here - part 1");
+            [_currentUser populateAdditionalAttributesFromDictionary:userDictionary];
         }
+        NSLog(@"*** Set the current user here - part 4");
     }
+    NSLog(@"*** Set the current user here - part 3");
     
     return _currentUser;
 }
@@ -46,6 +50,14 @@ static User *_currentUser;
         _currentUser = currentUser; // Needs to be set before firing the notification
         [[NSNotificationCenter defaultCenter] postNotificationName:UserDidLogoutNotification object:nil];
     }
+    NSLog(@"*** Set the current user here - part 2");
+
+}
+
+- (void)populateAdditionalAttributesFromDictionary:(NSDictionary *) dictionary {
+    self.currentUsername = [dictionary objectForKey:@"name"];
+    self.currentScreenname = [dictionary objectForKey:@"screen_name"];
+    self.currentProfileUrl = [NSURL URLWithString:[dictionary objectForKey:@"profile_image_url"]];
 }
 
 @end

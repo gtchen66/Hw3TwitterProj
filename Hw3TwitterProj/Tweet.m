@@ -30,6 +30,23 @@
     return [NSURL URLWithString:[[self.data objectForKey:@"user"] valueOrNilForKeyPath:@"profile_image_url"]];
 }
 
+- (int)retweet_count {
+    int answer;
+    
+//    NSLog(@"Extracting retweet count. Original is %@",[self.data valueOrNilForKeyPath:@"retweet_count"]);
+    answer = [[self.data valueOrNilForKeyPath:@"retweet_count"] intValue];
+//    NSLog(@"Computed value of retweet is %d",answer);
+    return answer;
+    
+}
+
+- (int)favorite_count {
+    return [[self.data valueOrNilForKeyPath:@"favorite_count"] intValue];
+}
+
+- (long long) tweetId {
+    return [[self.data valueOrNilForKeyPath:@"id"] longLongValue];
+}
 
 + (NSMutableArray *)tweetsWithArray:(NSArray *)array {
     NSMutableArray *tweets = [[NSMutableArray alloc] initWithCapacity:array.count];

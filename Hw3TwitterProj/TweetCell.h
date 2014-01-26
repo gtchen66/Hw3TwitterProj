@@ -14,6 +14,7 @@
 @property (weak, nonatomic) IBOutlet UILabel *tweetTime;
 @property (weak, nonatomic) IBOutlet UILabel *tweetAuthor;
 @property (weak, nonatomic) IBOutlet UIImageView *tweetImage;
+@property (weak, nonatomic) IBOutlet UILabel *tweetScreen;
 
 
 @end

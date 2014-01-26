@@ -15,6 +15,9 @@
 @property (nonatomic, strong, readonly) NSString *username;
 @property (nonatomic, strong, readonly) NSString *screen_name;
 @property (nonatomic, strong, readonly) NSURL *pictureUrl;
+@property (nonatomic) int retweet_count;
+@property (nonatomic) int favorite_count;
+@property (nonatomic) long long tweetId;
 
 + (NSMutableArray *) tweetsWithArray:(NSArray *)array;
 

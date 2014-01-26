@@ -22,15 +22,33 @@
 
 // Status API - copy verbatim
 
-- (void)homeTimelineWithCount:(int)count sinceId:(long long)sinceId
-                                        maxId:(long long)maxId
-                                        success:(void (^)(AFHTTPRequestOperation *operation, id response))success
-                                        failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure;
+- (void)homeTimelineWithCount:(int)count
+                      sinceId:(long long)sinceId
+                        maxId:(long long)maxId
+                      success:(void (^)(AFHTTPRequestOperation *operation, id response))success
+                      failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure;
 
 // Post API
-- (void)postStatusWithString:(NSString *)tweet success:(void (^)(AFHTTPRequestOperation *operation, id response))success
+- (void)postStatusWithString:(NSString *)tweet
+                     success:(void (^)(AFHTTPRequestOperation *operation, id response))success
                      failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure;
 
+
+// Favorite API
+- (void)postFavoriteTweetWithId:(long long)tweetId
+                        success:(void (^)(AFHTTPRequestOperation *operation, id response))success
+                        failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure;
+
+// Retweet API
+- (void)postRetweetWithId:(long long)tweetId
+                  success:(void (^)(AFHTTPRequestOperation *operation, id response))success
+                  failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure;
+
+// Reply API
+- (void)postReplyWithString:(NSString *)tweet
+                  toTweetId:(long long)toTweetId
+                    success:(void (^)(AFHTTPRequestOperation *operation, id response))success
+                    failure:(void (^)(AFHTTPRequestOperation *operation, NSError *error))failure;
 
 
 @end

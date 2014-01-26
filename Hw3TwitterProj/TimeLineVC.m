@@ -14,10 +14,14 @@
 
 #import <objc/runtime.h>
 
-@interface TimeLineVC ()
+@interface TimeLineVC () {
+    dispatch_queue_t myQueue;
+}
 
 @property (nonatomic, strong) NSMutableArray *tweets;
 @property (nonatomic, strong) DetailedTweetVC *detailedTweetTC;
+
+@property (nonatomic, strong) TweetCell *testCell;
 
 - (void)onSignOutButton;
 - (void)reload;
@@ -29,8 +33,7 @@
 
 @implementation TimeLineVC
 
-- (id)initWithStyle:(UITableViewStyle)style
-{
+- (id)initWithStyle:(UITableViewStyle)style {
     self = [super initWithStyle:style];
     if (self) {
         // Custom initialization
@@ -40,14 +43,12 @@
     return self;
 }
 
-- (void)viewDidLoad
-{
+- (void)viewDidLoad {
     [super viewDidLoad];
     
     // register the nib for the custom tablecell
     UINib *customNib = [UINib nibWithNibName:@"TweetCell" bundle:nil];
     [self.tableView registerNib:customNib forCellReuseIdentifier:@"TweetCell"];
-    
 
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Sign Out" style:UIBarButtonItemStylePlain target:self action:@selector(onSignOutButton)];
     self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Write" style:UIBarButtonItemStylePlain target:self action:@selector(onComposeButton)];
@@ -56,60 +57,74 @@
     // self.clearsSelectionOnViewWillAppear = NO;
  
     // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-    // self.navigationItem.rightBarButtonItem = self.editButtonItem;
+//    self.navigationItem.rightBarButtonItem = self.editButtonItem;
 }
 
-- (void)didReceiveMemoryWarning
-{
+- (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
 #pragma mark - Table view data source
 
-- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
-{
+- (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView {
     return 1;
 }
 
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
-{
-    return self.tweets.count;
+- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    int numrows = self.tweets.count + 1;
+    NSLog(@"number of rows set to %d",numrows);
+    return numrows;
 }
 
 // row was selected
 - (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSLog(@"selected row: %d", indexPath.row);
     [self.navigationController pushViewController:[[DetailedTweetVC alloc] init] animated:YES];
-    
 }
 
-
-- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
-{
+- (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath {
+    TweetCell *cell;
     static NSString *CellIdentifier = @"TweetCell";
-    TweetCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
+   
+    cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
     
     if (cell == nil) {
         NSLog(@"Warning. this should never be nil. it should auto-reallocate:");
         cell = [[TweetCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
+    
+    NSLog(@"cellForRowAtIndexPath loading row %d out of %d", indexPath.row, self.tweets.count);
+    if (indexPath.row >= self.tweets.count) {
+        if (indexPath.row > 0) {
+            NSLog(@"Need to do something to get more");
+            cell.tweetLabel.text = @"End of the line ... should be geting more.";
+            
+            // fire off a long running operation to fetch additional cells.
+            [self backgroundOperation];
+        
+        } else if (self.tweets.count == 0) {
+            cell.tweetLabel.text = @"";
+           
+        }
+        cell.tweetAuthor.text = @"";
+        cell.tweetTime.text = @"";
+        cell.tweetImage.image = nil;
+        cell.tweetScreen.text = @"";
 
-//    UITableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:CellIdentifier forIndexPath:indexPath];
-
-//    UITableViewCell *cell = [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:nil];
+        return cell;
+    }
     
     Tweet *tweet = self.tweets[indexPath.row];
     // cell.textLabel.text = tweet.text;
     cell.tweetLabel.text = tweet.text;
     cell.tweetAuthor.text = tweet.username;
+    cell.tweetScreen.text = [NSString stringWithFormat:@"@%@",tweet.screen_name];
     
-    NSLog(@"URL should be %@",tweet.pictureUrl);
+//    NSLog(@"URL should be %@",tweet.pictureUrl);
     NSData *imageData = [[NSData alloc] initWithContentsOfURL:tweet.pictureUrl];
     cell.tweetImage.image = [UIImage imageWithData:imageData];
     
-    
-    NSLog(@"Set cell %d to %@, generated at %@",indexPath.row,tweet.text, tweet.created_at);
     
     //try to convert time to NSDate.
     NSDateFormatter *dateFormat = [[NSDateFormatter alloc] init];
@@ -120,7 +135,9 @@
     NSTimeInterval deltaTime = [now timeIntervalSinceDate:mydate];
     NSString *deltaTimeString;
     
-    if (deltaTime < 60) {
+    if (deltaTime < 1) {
+        deltaTimeString = @"";
+    } else if (deltaTime < 60) {
         deltaTimeString = [NSString stringWithFormat:@"%ds",(int) deltaTime];
     } else if (deltaTime < 3600) {
         deltaTimeString = [NSString stringWithFormat:@"%dm",(int) (deltaTime/60)];
@@ -130,105 +147,57 @@
         deltaTimeString = [NSString stringWithFormat:@"%dd",(int) (deltaTime/3600/24)];
     }
     
-    NSLog(@"date is <%@> with delta %f is %@", mydate, deltaTime, deltaTimeString);
-    
     cell.tweetTime.text = deltaTimeString;
     
+//    NSLog(@"Set cell %d to < %@ >, generated at %@, aka <%f>, <%@>",indexPath.row,tweet.text, tweet.created_at,deltaTime, deltaTimeString);
+
     
     
     return cell;
 }
 
+// adjust the height of the cell dynamically
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath {
-    CGFloat rowHeight = 130;
-    return rowHeight;
+    CGFloat finalHeight = 70.0;
+    if ((indexPath.row >= self.tweets.count) && (indexPath.row > 0)) {
+        return finalHeight;
+    }
+    self.testCell = [tableView dequeueReusableCellWithIdentifier:@"TweetCell"];
+//    TweetCell *testCell = [tableView dequeueReusableCellWithIdentifier:@"TweetCell"];
+//    NSLog(@"heightForRowAtIndexPath is looking for row %d",indexPath.row);
+    Tweet *tweet = self.tweets[indexPath.row];
+    self.testCell.tweetLabel.text = tweet.text;
+
+    [self.testCell layoutIfNeeded];
+    [self.testCell.tweetLabel sizeToFit];
     
-    
-    /*
-     
-
-     tweet *tweet = self.tweet[indexpath.row]
-     
-// this is expensive        
-//     uitableviewcell *tvc = [tableview cellforrowatindexpath:indexpath];
-     
-//     cgrect frame = [tweet.text boundingrectwithsize:cgsizemake[200.0f, cgfloat_max) options:
-     CGRect frame = [tweet.text boundingRectWithSize:CGSizeMake(200.0f, CGFLOAT_MAX) 
-                    options:NSStringDrawingUsesLineFragmentOrigin 
-                    attributes:@{nsstringdrawinguseslinefragmentorigin attributes:@{nsfontattributename:[uifont systenfontofsize:12.0f]} 
-                    context:nikl]
-     
-     float height=frame.size.height
-     float diffheight = ((34.0 + height) - 64.0)
-     diff height = (diffheight > 0? ? diffheight :0;
-     flaot calheight = 64.0 + dffheight;
-     return calheight;
-     
-     
-     NSURLREquest *request = [NSURLRequiest requestWithURL:tweet.profileImageUrl];
-     [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^{NSURLResponse *
-        response, NSData *imageData, NSError *connectionError) {
-            [cell.profileImageView setImage:[UIImage imageWithData:imageData]];
-     }];
-     return cell;
-     
-     
-     
-     */
+    CGFloat rowHeight = self.testCell.tweetLabel.frame.size.height;
+    finalHeight = rowHeight + 40;
+    finalHeight = (finalHeight < 70) ? 70 : finalHeight;
+    NSLog(@"for row %d, height of label %@... is %.0f, testcell is %.0f, final height is %.0f", indexPath.row, [tweet.text substringToIndex:20], rowHeight, self.testCell.frame.size.height, finalHeight);
+//    CGFloat finalHeight = 70;
+    return finalHeight;
 }
 
-
-/*
-// Override to support conditional editing of the table view.
-- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the specified item to be editable.
-    return YES;
-}
-*/
-
-/*
-// Override to support editing the table view.
-- (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if (editingStyle == UITableViewCellEditingStyleDelete) {
-        // Delete the row from the data source
-        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    }   
-    else if (editingStyle == UITableViewCellEditingStyleInsert) {
-        // Create a new instance of the appropriate class, insert it into the array, and add a new row to the table view
-    }   
-}
-*/
-
-/*
-// Override to support rearranging the table view.
-- (void)tableView:(UITableView *)tableView moveRowAtIndexPath:(NSIndexPath *)fromIndexPath toIndexPath:(NSIndexPath *)toIndexPath
-{
-}
-*/
-
-/*
-// Override to support conditional rearranging of the table view.
-- (BOOL)tableView:(UITableView *)tableView canMoveRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    // Return NO if you do not want the item to be re-orderable.
-    return YES;
-}
-*/
 
 #pragma mark - Table view delegate
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
-    NSLog(@"selected row: %ld", (long)indexPath.row);
+// Jump to the detailed view of a tweet, but first pass the information
+// about the tweet to the new view controller
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+
+    // flash the cell just a little bit
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
-    
-//    Tweet *tweet = self.tweets[indexPath.row];
     
     if (self.detailedTweetTC == nil) {
         DetailedTweetVC *dvc = [[DetailedTweetVC alloc] init];
         self.detailedTweetTC = dvc;
+        NSLog(@"allocating a new Detailed Tweet VC with addr %@",self.detailedTweetTC);
+        
+    } else {
+        NSLog(@"using existing Detailed Tweet VC with addr %@",self.detailedTweetTC);
     }
     self.detailedTweetTC.tweet = self.tweets[indexPath.row];
     
@@ -238,21 +207,45 @@
 
 }
 
-
-/*
-#pragma mark - Navigation
-
-// In a story board-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender
-{
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+- (void)backgroundOperation {
+    if (!myQueue) {
+        myQueue = dispatch_queue_create("get.more.tweets", NULL);
+    }
+    
+    dispatch_async(myQueue, ^{ [self getMoreTweets];});
+    NSLog(@"kicked off request for more older tweets");
+    
 }
+// get OLDER tweets
+- (void)getMoreTweets {
+//    NSMutableArray *olderNewTweets = [[NSMutableArray alloc] init];
+    // last tweet.
+    NSLog(@"getMoreTweets: looking for last Tweet at row %d",self.tweets.count);
+    Tweet *lastTweet = self.tweets[self.tweets.count - 1];
+    
+    long long currentTweetMaxId = lastTweet.tweetId;
+    currentTweetMaxId--;
+    NSLog(@"starting with %d tweets in the system and id %lld",self.tweets.count, currentTweetMaxId);
 
- */
+    [[TwitterClient instance] homeTimelineWithCount:20 sinceId:0 maxId:currentTweetMaxId success:^(AFHTTPRequestOperation *operation, id response) {
+        //        NSLog(@"%@", response);
+        NSMutableArray *olderNewTweets = [[NSMutableArray alloc] init];
 
--(void) prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    NSLog(@"Preparing to move");
+        olderNewTweets = [Tweet tweetsWithArray:response];
+        [self.tweets addObjectsFromArray:olderNewTweets];
+        NSLog(@"there are %d new tweets in the system",olderNewTweets.count);
+        NSLog(@"getMoreTweets: calling reloadData");
+        NSLog(@"1st new tweet: %lld, %@",[olderNewTweets[0] tweetId], [olderNewTweets[0] text]);
+        NSLog(@"2nd new tweet: %lld, %@",[olderNewTweets[1] tweetId], [olderNewTweets[1] text]);
+        NSLog(@"3rd new tweet: %lld, %@",[olderNewTweets[2] tweetId], [olderNewTweets[2] text]);
+        
+        [self.tableView reloadData];
+        NSLog(@"grabbed from twitter, a total of %d", self.tweets.count);
+        
+    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        // Do nothing
+    }];
+
 }
 
 #pragma mark - Private methods
@@ -265,18 +258,17 @@
     [self.navigationController pushViewController:[[ComposeVC alloc] init] animated:YES];
     
 }
-// 426995657967038464
-// 426987812101959680
-// 426963970105163776
-// 426957658604994560
-// 426951755172028416
+
 
 - (void)reload {
-    [[TwitterClient instance] homeTimelineWithCount:5 sinceId:426957658604994560 maxId:0 success:^(AFHTTPRequestOperation *operation, id response) {
-        NSLog(@"%@", response);
-        NSLog(@"grabbed from twitter");
+    NSLog(@"reload.");
+    [[TwitterClient instance] homeTimelineWithCount:20 sinceId:0 maxId:0 success:^(AFHTTPRequestOperation *operation, id response) {
+//        NSLog(@"%@", response);
         self.tweets = [Tweet tweetsWithArray:response];
+        NSLog(@"calling reloadData");
         [self.tableView reloadData];
+        NSLog(@"grabbed from twitter, a total of %d", self.tweets.count);
+        
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         // Do nothing
     }];
