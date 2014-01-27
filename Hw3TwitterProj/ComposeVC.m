@@ -42,25 +42,13 @@
     // Do any additional setup after loading the view from its nib.
     NSLog(@"inside Compose: viewDidLoad");
 
-//    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Tweet" style:UIBarButtonItemStylePlain target:self action:@selector(onTweetButton)];
-//
-//    [self.navigationItem.leftBarButtonItem setTitle:@"Cancel"];
-//    
-//    self.currentUser = [User currentUser];
-//    self.forUsernameLabel.text = self.currentUser.currentUsername;
-//    self.forScreennameLabel.text = [NSString stringWithFormat:@"@%@",self.currentUser.currentScreenname];
-//    
-////    NSLog(@"Set username to %@ and screenname to %@", self.currentUser.currentUsername, self.currentUser.currentScreenname);
-//    
-//    NSData *imageData = [[NSData alloc] initWithContentsOfURL:self.currentUser.currentProfileUrl];
-//    self.forUserImage.image = [UIImage imageWithData:imageData];
-//    
-//    // if inReplyTo then update the textfield.
-//    if (self.inReplyToTweetId) {
-//        self.forComposeTextView.text = [NSString stringWithFormat:@"@%@",self.inReplyToUser];
-//        self.firstEdit = NO;
-//        [self.forComposeTextView setTextColor:[UIColor blackColor]];
-//    }
+    UIImage *myTweetImage = [UIImage imageNamed:@"tweet"];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:myTweetImage style:UIBarButtonItemStyleBordered target:self action:@selector(onTweetButton)];
+
+    // change back button to cancel
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCancel target:self action:@selector(onCancelButton)];
+    
+
     
 }
 
@@ -72,15 +60,10 @@
 
 - (void)viewWillAppear:(BOOL)animated {
     NSLog(@"Compose: viewWillAppear");
-//    [self.forComposeTextView keyboardAppearance];
 
     // display the keyboard
     [self.forComposeTextView becomeFirstResponder];
     self.title = @"Compose";
-
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Tweet" style:UIBarButtonItemStylePlain target:self action:@selector(onTweetButton)];
-    
-    [self.navigationItem.leftBarButtonItem setTitle:@"Cancel"];
     
     self.currentUser = [User currentUser];
     self.forUsernameLabel.text = self.currentUser.currentUsername;
@@ -97,12 +80,6 @@
         self.firstEdit = NO;
         [self.forComposeTextView setTextColor:[UIColor blackColor]];
     }
-}
-
-- (void) viewDidAppear:(BOOL)animated {
-    NSLog(@"Compose: viewDidAppear");
-
-    [self.navigationItem.leftBarButtonItem setTitle:@"CCC"];
 }
 
 - (void)onTweetButton {
@@ -132,27 +109,18 @@
     // dismiss keyboard
     [self.forComposeTextView resignFirstResponder];
     [self.navigationController popViewControllerAnimated:YES];
-    
-
-    
 }
 
-//- (void)reload2 {
-//    [[TwitterClient instance] homeTimelineWithCount:5 sinceId:426957658604994560 maxId:0 success:^(AFHTTPRequestOperation *operation, id response) {
-//        NSLog(@"%@", response);
-//        NSLog(@"grabbed from twitter");
-//        self.tweets = [Tweet tweetsWithArray:response];
-//        [self.tableView reloadData];
-//    } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
-//        // Do nothing
-//    }];
+- (void)onCancelButton {
+    // don't do anything.
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+//// started editing
+//- (void) textViewDidBeginEditing:(UITextView *)textView {
+//    NSLog(@"started editing");
+////    [textView setTextColor:[UIColor blackColor]];
 //}
-
-// started editing
-- (void) textViewDidBeginEditing:(UITextView *)textView {
-    NSLog(@"started editing");
-//    [textView setTextColor:[UIColor blackColor]];
-}
 
 - (void) textViewDidChange:(UITextView *)textView {
     NSString *refString = @"What's Happening?";

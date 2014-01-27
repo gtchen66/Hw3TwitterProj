@@ -51,13 +51,16 @@
     [self.tableView registerNib:customNib forCellReuseIdentifier:@"TweetCell"];
 
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Sign Out" style:UIBarButtonItemStylePlain target:self action:@selector(onSignOutButton)];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Write" style:UIBarButtonItemStylePlain target:self action:@selector(onComposeButton)];
+//    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Write" style:UIBarButtonItemStylePlain target:self action:@selector(onComposeButton)];
 
-    // Uncomment the following line to preserve selection between presentations.
-    // self.clearsSelectionOnViewWillAppear = NO;
- 
-    // Uncomment the following line to display an Edit button in the navigation bar for this view controller.
-//    self.navigationItem.rightBarButtonItem = self.editButtonItem;
+    UIImage *myComposeImage = [UIImage imageNamed:@"write"];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:myComposeImage style:UIBarButtonItemStyleBordered target:self action:@selector(onComposeButton)];
+
+    
+    UIRefreshControl *refreshControl = [[UIRefreshControl alloc] init];
+    [refreshControl addTarget:self action:@selector(refreshView:) forControlEvents:UIControlEventValueChanged];
+    self.refreshControl = refreshControl;
+
 }
 
 - (void)didReceiveMemoryWarning {
@@ -94,7 +97,7 @@
         cell = [[TweetCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
     
-    NSLog(@"cellForRowAtIndexPath loading row %d out of %d", indexPath.row, self.tweets.count);
+//    NSLog(@"cellForRowAtIndexPath loading row %d out of %d", indexPath.row, self.tweets.count);
     if (indexPath.row >= self.tweets.count) {
         if (indexPath.row > 0) {
             NSLog(@"Need to do something to get more");
@@ -183,6 +186,19 @@
 
 #pragma mark - Table view delegate
 
+//- (void) scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
+//    NSLog(@"scrollViewDidEndDragging");
+//}
+//- (void) scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
+//    NSLog(@"scrollViewDidEndDecelerating");
+//}
+//- (void) scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView {
+//    NSLog(@"scrollViewDidEndScrollingAnimation");
+//}
+//- (void) scrollViewDidScrollToTop:(UIScrollView *)scrollView {
+//    NSLog(@"scrollViewDidScrollToTop");
+//}
+
 // Jump to the detailed view of a tweet, but first pass the information
 // about the tweet to the new view controller
 
@@ -194,10 +210,9 @@
     if (self.detailedTweetTC == nil) {
         DetailedTweetVC *dvc = [[DetailedTweetVC alloc] init];
         self.detailedTweetTC = dvc;
-        NSLog(@"allocating a new Detailed Tweet VC with addr %@",self.detailedTweetTC);
-        
-    } else {
-        NSLog(@"using existing Detailed Tweet VC with addr %@",self.detailedTweetTC);
+//        NSLog(@"allocating a new Detailed Tweet VC with addr %@",self.detailedTweetTC);
+//    } else {
+//        NSLog(@"using existing Detailed Tweet VC with addr %@",self.detailedTweetTC);
     }
     self.detailedTweetTC.tweet = self.tweets[indexPath.row];
     
@@ -218,12 +233,11 @@
 }
 // get OLDER tweets
 - (void)getMoreTweets {
-//    NSMutableArray *olderNewTweets = [[NSMutableArray alloc] init];
-    // last tweet.
-    NSLog(@"getMoreTweets: looking for last Tweet at row %d",self.tweets.count);
-    Tweet *lastTweet = self.tweets[self.tweets.count - 1];
-    
+//    NSLog(@"getMoreTweets: looking for last Tweet at row %d",self.tweets.count);
+    int currentTweetCount = self.tweets.count;
+    Tweet *lastTweet = self.tweets[currentTweetCount - 1];
     long long currentTweetMaxId = lastTweet.tweetId;
+
     currentTweetMaxId--;
     NSLog(@"starting with %d tweets in the system and id %lld",self.tweets.count, currentTweetMaxId);
 
@@ -234,13 +248,20 @@
         olderNewTweets = [Tweet tweetsWithArray:response];
         [self.tweets addObjectsFromArray:olderNewTweets];
         NSLog(@"there are %d new tweets in the system",olderNewTweets.count);
-        NSLog(@"getMoreTweets: calling reloadData");
         NSLog(@"1st new tweet: %lld, %@",[olderNewTweets[0] tweetId], [olderNewTweets[0] text]);
-        NSLog(@"2nd new tweet: %lld, %@",[olderNewTweets[1] tweetId], [olderNewTweets[1] text]);
-        NSLog(@"3rd new tweet: %lld, %@",[olderNewTweets[2] tweetId], [olderNewTweets[2] text]);
         
-        [self.tableView reloadData];
-        NSLog(@"grabbed from twitter, a total of %d", self.tweets.count);
+        // This was supposed to just load the new rows, but it called every row anyway...
+        // comment it out and use the original reloadData
+        
+//        NSMutableArray *newRows = [[NSMutableArray alloc] init];
+//        int i;
+//        for (i=currentTweetCount; i< self.tweets.count; i++) {
+//            [newRows addObject:[NSIndexPath indexPathForRow:i inSection:0]];
+//        }
+//        [self.tableView insertRowsAtIndexPaths:newRows withRowAnimation:UITableViewRowAnimationBottom];
+        
+       [self.tableView reloadData];
+        NSLog(@"grabbed %d from twitter, a total of %d", [olderNewTweets count], self.tweets.count);
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         // Do nothing
@@ -259,6 +280,14 @@
     
 }
 
+// when user drags down top of table, refresh is called.  this calls reload, which only
+// loads in the 1st 20 tweets.  infinite scroll rows will need to be refetched.  Possible
+// room for improvement by inserting, but will require more code to handle corner cases.
+- (void) refreshView:(UIRefreshControl *)sender {
+    sender.attributedTitle = [[NSAttributedString alloc] initWithString:@"Pulling..."];
+    [self reload];
+    [sender endRefreshing];
+}
 
 - (void)reload {
     NSLog(@"reload.");
@@ -270,6 +299,7 @@
         NSLog(@"grabbed from twitter, a total of %d", self.tweets.count);
         
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
+        NSLog(@"Failed at reload.  Error is %@",error);
         // Do nothing
     }];
 }

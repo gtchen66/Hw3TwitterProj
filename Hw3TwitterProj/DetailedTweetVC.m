@@ -25,7 +25,8 @@
 @end
 
 @implementation DetailedTweetVC
-- (IBAction)onReplyButton:(id)sender {
+
+- (IBAction)onReplyIcon:(id)sender {
     // go to the compose page, but with minor tweeks
     
     NSLog(@"need to reply to status_id %lld and user %@", self.tweet.tweetId, self.tweet.username);
@@ -40,22 +41,16 @@
     [self.navigationController pushViewController:self.composeVC animated:YES];
 }
 
-- (IBAction)onRetweetButton:(id)sender {
-    // this should be fast.
+- (IBAction)onRetweenIcon:(id)sender {
+
     [[TwitterClient instance] postRetweetWithId:self.tweet.tweetId success:^(AFHTTPRequestOperation *operation, id response) {
         NSLog(@"Retweet %lld now",self.tweet.tweetId);
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
         NSLog(@"Retweet failed");
     }];
-
-    
 }
-- (IBAction)onFavoriteButton:(id)sender {
-    
-//    - (void)postFavoriteTweetWithId:(long long)tweetId success:(void (^)(AFHTTPRequestOperation *, id))success failure:(void (^)(AFHTTPRequestOperation *, NSError *))failure {
-
-    
-// this should be fast.
+- (IBAction)onFavoriteIcon:(id)sender {
+   
     [[TwitterClient instance] postFavoriteTweetWithId:self.tweet.tweetId success:^(AFHTTPRequestOperation *operation, id response) {
         NSLog(@"Updated Favorite now");
     } failure:^(AFHTTPRequestOperation *operation, NSError *error) {
