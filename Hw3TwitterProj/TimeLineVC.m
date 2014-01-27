@@ -54,7 +54,7 @@
 //    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Write" style:UIBarButtonItemStylePlain target:self action:@selector(onComposeButton)];
 
     UIImage *myComposeImage = [UIImage imageNamed:@"write"];
-    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:myComposeImage style:UIBarButtonItemStyleBordered target:self action:@selector(onComposeButton)];
+    self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:myComposeImage style:UIBarButtonItemStylePlain target:self action:@selector(onComposeButton)];
 
     
     UIRefreshControl *refreshControl = [[UIRefreshControl alloc] init];

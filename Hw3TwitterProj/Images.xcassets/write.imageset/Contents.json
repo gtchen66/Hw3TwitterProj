@@ -3,16 +3,16 @@
     {
       "idiom" : "iphone",
       "scale" : "1x",
-      "filename" : "write-32x32.png"
+      "filename" : "write-16x16.png"
     },
     {
       "idiom" : "iphone",
       "scale" : "2x",
-      "filename" : "write-64x64.png"
+      "filename" : "write-32x32.png"
     },
     {
       "idiom" : "iphone",
-      "filename" : "write-128x128.png",
+      "filename" : "write-64x64.png",
       "subtype" : "retina4",
       "scale" : "2x"
     },

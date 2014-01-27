@@ -146,7 +146,7 @@
         newText = [self.forComposeTextView.text substringToIndex:140];
         self.forComposeTextView.text = newText;
     }
-    self.title = [NSString stringWithFormat:@"%d",[self.forComposeTextView.text length]];
+    self.title = [NSString stringWithFormat:@"%d",140-[self.forComposeTextView.text length]];
     
 }
 
